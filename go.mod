@@ -2,7 +2,12 @@ module github.com/apparentlymart/terraform-provider-assume
 
 go 1.22.1
 
-require github.com/apparentlymart/go-tf-func-provider v0.0.0-20240303235123-0047ace1f889
+require (
+	github.com/apparentlymart/go-tf-func-provider v0.0.0-20240303235123-0047ace1f889
+	github.com/google/go-cmp v0.6.0
+	github.com/zclconf/go-cty v1.14.3
+	github.com/zclconf/go-cty-debug v0.0.0-20240209213017-b8d9e32151be
+)
 
 require (
 	github.com/apparentlymart/go-ctxenv v1.0.0 // indirect
@@ -11,7 +16,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	github.com/zclconf/go-cty v1.14.3 // indirect
 	go.rpcplugin.org/rpcplugin v0.3.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
