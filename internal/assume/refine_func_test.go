@@ -42,6 +42,103 @@ func TestRefineFuncs(t *testing.T) {
 			},
 		},
 
+		"equal": {
+			"dynamicval": {
+				Args: []cty.Value{
+					cty.DynamicVal,
+					cty.StringVal("hi"),
+				},
+				Want: cty.StringVal("hi"),
+			},
+			"unknown string": {
+				Args: []cty.Value{
+					cty.UnknownVal(cty.String),
+					cty.StringVal("hi"),
+				},
+				Want: cty.StringVal("hi"),
+			},
+			"known string, correct": {
+				Args: []cty.Value{
+					cty.StringVal("hi"),
+					cty.StringVal("hi"),
+				},
+				Want: cty.StringVal("hi"),
+			},
+			"known string, incorrect": {
+				Args: []cty.Value{
+					cty.StringVal("hello"),
+					cty.StringVal("hi"),
+				},
+				WantErr: `the actual value "hello" does not match the assumed value`,
+			},
+			"unknown map compared to object": {
+				Args: []cty.Value{
+					cty.UnknownVal(cty.Map(cty.String)),
+					cty.ObjectVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+				},
+				Want: cty.ObjectVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+			},
+			"known map compared to object, correct": {
+				Args: []cty.Value{
+					cty.MapVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+					cty.ObjectVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+				},
+				Want: cty.ObjectVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+			},
+			"known map compared to object, incorrect": {
+				Args: []cty.Value{
+					cty.MapVal(map[string]cty.Value{"greeting": cty.StringVal("howdy")}),
+					cty.ObjectVal(map[string]cty.Value{"greeting": cty.StringVal("hello")}),
+				},
+				WantErr: `the actual value does not match the assumed value`,
+			},
+			"mismatching types with unknown value, convertable": {
+				Args: []cty.Value{
+					cty.UnknownVal(cty.Bool),
+					cty.StringVal("true"),
+				},
+				Want: cty.StringVal("true"),
+			},
+			"mismatching types with known value, convertable": {
+				Args: []cty.Value{
+					cty.True,
+					cty.StringVal("true"),
+				},
+				Want: cty.StringVal("true"),
+			},
+			"mismatching types with known value, unconvertable": {
+				Args: []cty.Value{
+					cty.ListValEmpty(cty.String),
+					cty.StringVal("true"),
+				},
+				WantErr: `actual value type list of string does not match assumed value type string`,
+			},
+			"early failure due to other refinements": {
+				Args: []cty.Value{
+					cty.UnknownVal(cty.String).Refine().StringPrefix("arn:").NewValue(),
+					cty.StringVal("does not start with arn:"),
+				},
+				// We can predict that the given value definitely won't equal
+				// the expected value based on its known string prefix, even
+				// though we don't know the entire string yet.
+				WantErr: `the actual value (a string starting with "arn:") does not match the assumed value`,
+			},
+			"partially-unknown input that might match": {
+				Args: []cty.Value{
+					cty.ListVal([]cty.Value{cty.StringVal("a"), cty.UnknownVal(cty.String)}),
+					cty.ListVal([]cty.Value{cty.StringVal("a"), cty.StringVal("b")}),
+				},
+				Want: cty.ListVal([]cty.Value{cty.StringVal("a"), cty.StringVal("b")}),
+			},
+			"partially-unknown input that cannot match": {
+				Args: []cty.Value{
+					cty.ListVal([]cty.Value{cty.StringVal("a"), cty.UnknownVal(cty.String)}),
+					cty.ListVal([]cty.Value{cty.StringVal("not a"), cty.StringVal("b")}),
+				},
+				WantErr: `the actual value does not match the assumed value`,
+			},
+		},
+
 		"stringprefix": {
 			"dynamicval": {
 				Args: []cty.Value{

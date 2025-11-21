@@ -7,6 +7,7 @@ import (
 func NewProvider() *tffunc.Provider {
 	p := tffunc.NewProvider()
 	p.AddFunction("notnull", notnullFunc)
+	p.AddFunction("equal", equalFunc)
 	p.AddFunction("stringprefix", stringprefixFunc)
 	p.AddFunction("listlength", listlengthFunc)
 	p.AddFunction("listlengthmin", listlengthminFunc)
